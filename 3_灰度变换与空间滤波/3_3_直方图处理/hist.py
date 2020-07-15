@@ -68,3 +68,42 @@ def hist_equalization(input_image):
 
     return output_image
 
+
+#直方图匹配函数，接受原始图像和目标灰度直方图
+def hist_Match(input_image, h_d):
+    """
+    直方图匹配
+    Args:
+        input_image : 原图像
+        h_d : 定义的匹配函数
+    Returns:
+        直方图匹配后的图像
+    """
+
+    input_image_cp = np.copy(input_image)
+
+    h1 = arrayToHist(input_image_cp, 256)
+    s = h1.copy()  #标准直方图变换S
+    t = 0
+    for k in range(256):
+        t += h1[k]
+        s[k] = t
+
+    g = h_d.copy()  #变换函数G
+    t = 0
+    for k in range(256):
+        t += h_d[k]
+        g[k] = t
+
+    M = np.zeros(256)
+    for i in range(256):
+        idx = 0
+        minx = 1
+        for j in g:
+            if (np.fabs(g[j] - s[i]) < minx):
+                minx = np.fabs(g[j] - s[i])
+                idx = j
+        M[i] = idx
+    output_image = M[input_image_cp]
+
+    return output_image.astype('uint8')
